@@ -23,6 +23,39 @@ paths:
                 type: string
 
   /v1/contracts:
+    get:
+      operationId: listContracts
+      summary: Lists contracts
+      description: Lists contracts
+      tags:
+        - Contracts
+      parameters:
+        - name: updatedAfter
+          in: query
+          description: Filter results by updated after given date time
+          schema:
+            type: string
+            format: date-time
+        - name: contractStatus
+          in: query
+          description: Filter results by contract status
+          schema:
+            $ref: "#/components/schemas/SapContractStatus"
+      responses:
+        "200":
+          description: Contract
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SapContract"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     post:
       operationId: createContract
       summary: Create a contract.
