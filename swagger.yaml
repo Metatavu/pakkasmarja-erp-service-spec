@@ -36,6 +36,11 @@ paths:
           schema:
             type: string
             format: date
+        - name: businessPartnerCode
+          in: query
+          description: Filter results by business partner code
+          schema:
+            type: string
         - name: contractStatus
           in: query
           description: Filter results by contract status
