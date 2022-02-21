@@ -30,12 +30,12 @@ paths:
       tags:
         - Contracts
       parameters:
-        - name: updatedAfter
+        - name: startDate
           in: query
-          description: Filter results by updated after given date time
+          description: Filter results by start date
           schema:
             type: string
-            format: date-time
+            format: date
         - name: contractStatus
           in: query
           description: Filter results by contract status
