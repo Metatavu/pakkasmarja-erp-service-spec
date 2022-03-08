@@ -117,65 +117,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-    put:
-      operationId: updateContract
-      summary: Update a contract.
-      description: Updates a contract
-      tags:
-        - Contracts
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/SapContract"
-        description: Payload
-        required: true
-      parameters:
-        - name: sapId
-          required: true
-          in: path
-          description: sap contract id
-          schema:
-            type: string
-            pattern: /^[0-9]{4}-[0-9]{4}-[0-9]{3}$/
-            description: ID in format of "[year]-[SAP contract document number]-[item group ID]"
-      responses:
-        "200":
-          description: Updated contract
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SapContract"
-        default:
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-    delete:
-      operationId: deleteContract
-      summary: Deletes a contract.
-      description: Deletes a contract
-      tags:
-        - Contracts
-      parameters:
-        - name: sapId
-          required: true
-          in: path
-          description: sap contract id
-          schema:
-            type: string
-            pattern: /^[0-9]{4}-[0-9]{4}-[0-9]{3}$/
-            description: ID in format of "[year]-[SAP contract document number]-[item group ID]"
-      responses:
-        "201":
-          description: Success response
-        default:
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
 
   /v1/items:
     get:
