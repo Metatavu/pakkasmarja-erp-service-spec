@@ -414,9 +414,9 @@ components:
     SapBankAccount:
       type: object
       properties:
-        BIC:
+        bic:
           type: string
-        IBAN:
+        iban:
           type: string
 
     SapAddressType:
