@@ -261,7 +261,6 @@ components:
       type: object
       description: SapContract object
       required:
-        - id
         - businessPartnerCode
         - contactPersonCode
         - itemGroupCode
