@@ -416,6 +416,10 @@ components:
           format: int32
           description: SAP business partner code.
           readOnly: true
+        legacyCode:
+          type: integer
+          description: Legacy SAP business partner code.
+          readOnly: true
         email:
           type: string
           format: email
