@@ -264,6 +264,34 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /v1/purchaseDeliveryNotes:
+    post:
+      operationId: createPurchaseDeliveryNote
+      summary: Create a purchase delivery note
+      description: Creates a new purchase delivery note
+      tags:
+        - PurchaseDeliveryNotes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SapPurchaseDeliveryNote"
+        description: Payload
+        required: true
+      responses:
+        "200":
+          description: Created purchase delivery note
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SapPurchaseDeliveryNote"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
 components:
   securitySchemes:
     bearerAuth:
@@ -524,4 +552,72 @@ components:
       enum:
         - ToWarehouse
         - FromWarehouse
+
+    SapPurchaseDeliveryNote:
+      type: object
+      required:
+        - docDate
+        - businessPartnerCode
+        - salesPersonCode
+        - lines
+      properties:
+        docDate:
+          type: string
+          format: date
+        businessPartnerCode:
+          type: integer
+          format: int32
+          description: SAP business partner code.
+        comments:
+          type: string
+        salesPersonCode:
+          type: integer
+          format: int32
+          description: SAP sales person code.
+        lines:
+          type: array
+          items:
+            $ref: "#/components/schemas/SapPurchaseDeliveryNoteLine"
+
+    SapPurchaseDeliveryNoteLine:
+      type: object
+      required:
+        - itemCode
+        - quantity
+        - unitPrice
+        - warehouseCode
+        - batchNumbers
+      properties:
+        itemCode:
+          type: integer
+          format: int32
+          description: SAP item code.
+        quantity:
+          type: number
+          format: double
+          description: Quantity.
+        unitPrice:
+          type: number
+          format: double
+          description: Unit price
+        warehouseCode:
+          type: string
+          description: SAP warehouse code.
+        batchNumbers:
+          type: array
+          items:
+            $ref: "#/components/schemas/SapBatchNumber"
+
+    SapBatchNumber:
+      type: object
+      required:
+        - batchNumber
+        - quantity
+      properties:
+        batchNumber:
+          type: string
+        quantity:
+          type: number
+          format: double
+          description: Quantity.
 
