@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   version: 1.0.0
-  title: Template API-spec
+  title: Pakkasmarja ERP services
 
 security:
   - bearerAuth: []
@@ -22,14 +22,122 @@ paths:
               schema:
                 type: string
 
-  /v1/examples:
+  /v1/contracts:
     get:
-      operationId: listExamples
-      summary: List examples.
-      description: Lists examples.
+      operationId: listContracts
+      summary: Lists contracts
+      description: Lists contracts
       tags:
-        - Examples
+        - Contracts
       parameters:
+        - name: startDate
+          in: query
+          description: Filter results by start date
+          schema:
+            type: string
+            format: date
+        - name: businessPartnerCode
+          in: query
+          description: Filter results by business partner code
+          schema:
+            type: string
+        - name: contractStatus
+          in: query
+          description: Filter results by contract status
+          schema:
+            $ref: "#/components/schemas/SapContractStatus"
+      responses:
+        "200":
+          description: Contract
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SapContract"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      operationId: createContract
+      summary: Create a contract.
+      description: Creates a new contract.
+      tags:
+        - Contracts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SapContract"
+        description: Payload
+        required: true
+      responses:
+        "200":
+          description: Created contract
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SapContract"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  "/v1/contracts/{sapId}":
+    get:
+      operationId: findContract
+      summary: Find a contract.
+      description: Finds a contract by id.
+      tags:
+        - Contracts
+      parameters:
+        - name: sapId
+          required: true
+          in: path
+          description: sap contract id
+          schema:
+            type: string
+            pattern: /^[0-9]{4}-[0-9]{4}-[0-9]{3}$/
+            description: ID in format of "[year]-[SAP contract document number]-[item group ID]"
+      responses:
+        "200":
+          description: Contract
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SapContract"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /v1/items:
+    get:
+      operationId: listItems
+      summary: List items.
+      description: Lists items.
+      tags:
+        - Items
+      parameters:
+        - name: itemGroupCode
+          in: query
+          description: Filter results by item group code
+          schema:
+            type: integer
+            format: int32
+        - name: updatedAfter
+          in: query
+          description: Filter results by updated after given date time
+          schema:
+            type: string
+            format: date-time
         - name: firstResult
           in: query
           description: First result. Defaults to 0
@@ -42,211 +150,153 @@ paths:
             type: integer
       responses:
         "200":
-          description: List of examples
+          description: List of items
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Example"
+                  $ref: "#/components/schemas/SapItem"
           headers:
             X-Total-Count:
               schema:
                 type: integer
                 format: int64
-              description: Total count of examples with given filters.
-        "400":
-          description: Invalid request was sent to the server
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "403":
-          description: Attempted to make a call with unauthorized client
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-    post:
-      operationId: createExample
-      summary: Create an example.
-      description: Creates a new example.
-      tags:
-        - Examples
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Example"
-        description: Payload
-        required: true
-      responses:
-        "200":
-          description: Created Example
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Example"
-        "400":
-          description: Invalid request was sent to the server
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "403":
-          description: Attempted to make a call with unauthorized client
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "500":
-          description: Internal server error
+              description: Total count of items with given filters.
+        default:
+          description: Error
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
 
-  "/v1/examples/{exampleId}":
+  "/v1/items/{sapId}":
     get:
-      operationId: findExample
-      summary: Find a example.
-      description: Finds a example by id.
+      operationId: findItem
+      summary: Find a item.
+      description: Finds a item by id.
       tags:
-        - Examples
+        - Items
       parameters:
-        - name: exampleId
+        - name: sapId
           required: true
           in: path
-          description: example id
+          description: sap item id
           schema:
-            type: string
-            format: uuid
+            type: integer
+            format: int32
+            description: Item code in SAP
       responses:
         "200":
-          description: Example
+          description: Item
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Example"
-        "400":
-          description: Invalid request was sent to the server
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "403":
-          description: Attempted to make a call with unauthorized client
+                $ref: "#/components/schemas/SapItem"
+        default:
+          description: Error
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-        "404":
-          description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-    put:
-      operationId: updateExample
-      summary: Update a example.
-      description: Updates a example
+
+  /v1/businessPartners:
+    get:
+      operationId: listBusinessPartners
+      summary: List businessPartners.
+      description: Lists businessPartners.
       tags:
-        - Examples
+        - BusinessPartners
+      parameters:
+        - name: updatedAfter
+          in: query
+          description: Filter results by updated after given date time
+          schema:
+            type: string
+            format: date-time
+        - name: firstResult
+          in: query
+          description: First result. Defaults to 0
+          schema:
+            type: integer
+        - name: maxResults
+          in: query
+          description: Max results. Defaults to 10
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of businessPartners
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SapBusinessPartner"
+          headers:
+            X-Total-Count:
+              schema:
+                type: integer
+                format: int64
+              description: Total count of businessPartners with given filters.
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /v1/stockTransfers:
+    post:
+      operationId: createStockTransfer
+      summary: Create a stock transfer.
+      description: Creates a new stock transfer.
+      tags:
+        - StockTransfers
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Example"
+              $ref: "#/components/schemas/SapStockTransfer"
         description: Payload
         required: true
-      parameters:
-        - name: exampleId
-          required: true
-          in: path
-          description: example id
-          schema:
-            type: string
-            format: uuid
       responses:
         "200":
-          description: Updated Example
+          description: Created stock transfer
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Example"
-        "400":
-          description: Invalid request was sent to the server
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "403":
-          description: Attempted to make a call with unauthorized client
+                $ref: "#/components/schemas/SapStockTransfer"
+        default:
+          description: Error
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-        "404":
-          description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-    delete:
-      operationId: deleteExample
-      summary: Delete a example.
-      description: Deletes a example.
+
+  /v1/purchaseDeliveryNotes:
+    post:
+      operationId: createPurchaseDeliveryNote
+      summary: Create a purchase delivery note
+      description: Creates a new purchase delivery note
       tags:
-        - Examples
-      parameters:
-        - name: exampleId
-          required: true
-          in: path
-          description: example id
-          schema:
-            type: string
-            format: uuid
+        - PurchaseDeliveryNotes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SapPurchaseDeliveryNote"
+        description: Payload
+        required: true
       responses:
-        "204":
-          description: Success
-        "400":
-          description: Invalid request was sent to the server
+        "200":
+          description: Created purchase delivery note
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
-        "403":
-          description: Attempted to make a call with unauthorized client
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "404":
-          description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "500":
-          description: Internal server error
+                $ref: "#/components/schemas/SapPurchaseDeliveryNote"
+        default:
+          description: Error
           content:
             application/json:
               schema:
@@ -273,43 +323,315 @@ components:
         message:
           type: string
 
-    Example:
+    SapContract:
       type: object
-      description: Example object
+      description: SapContract object
       required:
-        - name
-        - message
-        - amount
+        - businessPartnerCode
+        - contactPersonCode
+        - itemGroupCode
+        - status
       properties:
         id:
           type: string
-          format: uuid
-          readOnly: true
-          description: Example object id in UUID format
-        name:
-          type: string
-          description: Example object name
-        amount:
+          pattern: /^[0-9]{4}-[0-9]{4}-[0-9]{3}$/
+          description: ID in format of "[year]-[SAP contract document number]-[item group ID]"
+        businessPartnerCode:
           type: integer
           format: int32
-          description: Example object amount
-        creatorId:
-          description: Id of creator
-          type: string
-          format: uuid
+          description: SAP business partner code
+        contactPersonCode:
+          type: integer
+          format: int32
+          description: SAP contact person code
+        itemGroupCode:
+          type: integer
+          format: int32
+          description: SAP item group code. This field must match with the ID postfix
+        deliveredQuantity:
+          type: number
+          format: double
           readOnly: true
-        lastModifierId:
-          description: Id of last modifier
+        startDate:
           type: string
-          format: uuid
+          format: date
           readOnly: true
-        createdAt:
+        endDate:
+          type: string
+          format: date
+          readOnly: true
+        signingDate:
+          type: string
+          format: date
+          readOnly: true
+        terminateDate:
+          type: string
+          format: date
+          readOnly: true
+        remarks:
+          type: string
+        status:
+          $ref: "#/components/schemas/SapContractStatus"
+
+    SapContractStatus:
+      type: string
+      enum:
+        - APPROVED
+        - ON_HOLD
+        - DRAFT
+        - TERMINATED
+
+    SapItem:
+      type: object
+      description: Sap item
+      required:
+        - code
+        - name
+        - salesUnit
+        - purchaseUnit
+      properties:
+        code:
+          type: integer
+          format: int32
+          description: SAP item code.
+          readOnly: true
+        itemGroupCode:
+          type: integer
+          format: int32
+          description: SAP item group code.
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        purchaseUnit:
+          type: string
+          readOnly: true
+        batchManaged:
+          type: boolean
+          readOnly: true
+        updated:
           type: string
           format: date-time
-          description: Created date
           readOnly: true
-        modifiedAt:
+
+    SapBusinessPartner:
+      type: object
+      description: Sap item
+      required:
+        - code
+        - email
+      properties:
+        code:
+          type: integer
+          format: int32
+          description: SAP business partner code.
+          readOnly: true
+        legacyCode:
+          type: integer
+          description: Legacy SAP business partner code.
+          readOnly: true
+        email:
+          type: string
+          format: email
+        phoneNumbers:
+          type: array
+          readOnly: true
+          items:
+            type: string
+        addresses:
+          type: array
+          readOnly: true
+          items:
+            $ref: "#/components/schemas/SapAddress"
+        companyName:
+          type: string
+          readOnly: true
+        federalTaxId:
+          type: string
+          readOnly: true
+        vatLiable:
+          type: string
+          readOnly: true
+          enum:
+            - NOT_LIABLE
+            - FI
+            - EU
+        bankAccounts:
+          type: array
+          readOnly: true
+          items:
+            $ref: "#/components/schemas/SapBankAccount"
+        updated:
           type: string
           format: date-time
-          description: Date modified
           readOnly: true
+
+    SapAddress:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          $ref: "#/components/schemas/SapAddressType"
+        streetAddress:
+          type: string
+        postalCode:
+          type: string
+        city:
+          type: string
+
+    SapBankAccount:
+      type: object
+      properties:
+        bic:
+          type: string
+        iban:
+          type: string
+
+    SapAddressType:
+      type: string
+      enum:
+        - BILLING
+        - DELIVERY
+
+    SapStockTransfer:
+      type: object
+      required:
+        - docDate
+        - businessPartnerCode
+        - salesPersonCode
+        - fromWarehouse
+        - toWarehouse
+        - lines
+      properties:
+        docDate:
+          type: string
+          format: date
+        businessPartnerCode:
+          type: integer
+          format: int32
+          description: SAP business partner code.
+        comments:
+          type: string
+        salesPersonCode:
+          type: integer
+          format: int32
+          description: SAP sales person code.
+        fromWarehouse:
+          type: string
+          description: SAP warehouse code.
+        toWarehouse:
+          type: string
+          description: SAP warehouse code.
+        lines:
+          type: array
+          items:
+            $ref: "#/components/schemas/SapStockTransferLine"
+
+    SapStockTransferLine:
+      type: object
+      required:
+        - itemCode
+        - quantity
+        - binAllocations
+      properties:
+        itemCode:
+          type: integer
+          format: int32
+          description: SAP item code.
+        quantity:
+          type: number
+          format: double
+          description: Quantity.
+        binAllocations:
+          type: array
+          items:
+            $ref: "#/components/schemas/SapStockTransferLineBinAllocation"
+
+    SapStockTransferLineBinAllocation:
+      type: object
+      required:
+        - absEntry
+        - actionType
+      properties:
+        absEntry:
+          type: integer
+          format: int32
+          description: SAP abs entry
+        actionType:
+          $ref: "#/components/schemas/BinActionType"
+
+    BinActionType:
+      type: string
+      enum:
+        - ToWarehouse
+        - FromWarehouse
+
+    SapPurchaseDeliveryNote:
+      type: object
+      required:
+        - docDate
+        - businessPartnerCode
+        - salesPersonCode
+        - lines
+      properties:
+        docDate:
+          type: string
+          format: date
+        businessPartnerCode:
+          type: integer
+          format: int32
+          description: SAP business partner code.
+        comments:
+          type: string
+        salesPersonCode:
+          type: integer
+          format: int32
+          description: SAP sales person code.
+        lines:
+          type: array
+          items:
+            $ref: "#/components/schemas/SapPurchaseDeliveryNoteLine"
+
+    SapPurchaseDeliveryNoteLine:
+      type: object
+      required:
+        - itemCode
+        - quantity
+        - unitPrice
+        - warehouseCode
+        - batchNumbers
+      properties:
+        itemCode:
+          type: integer
+          format: int32
+          description: SAP item code.
+        quantity:
+          type: number
+          format: double
+          description: Quantity.
+        unitPrice:
+          type: number
+          format: double
+          description: Unit price
+        warehouseCode:
+          type: string
+          description: SAP warehouse code.
+        batchNumbers:
+          type: array
+          items:
+            $ref: "#/components/schemas/SapBatchNumber"
+
+    SapBatchNumber:
+      type: object
+      required:
+        - batchNumber
+        - quantity
+      properties:
+        batchNumber:
+          type: string
+        quantity:
+          type: number
+          format: double
+          description: Quantity.
+
